@@ -1,15 +1,16 @@
 const weatherContainer = document.querySelector("#weather");
 const forecastContainer = document.querySelector("#forecast");
 
-const apiKey = "YOUR_API_KEY"; // Replace with your real API key
-const city = "Accra"; // You can make this dynamic later
+const apiKey = "807a58c6b25711f127d258ed4d1c9779"; // Your working API key
+const city = "Accra"; 
 const units = "metric"; // Celsius
 
 async function getWeather() {
   try {
-    // Current Weather
+    // ✅ Current Weather
     const weatherURL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=${units}`;
     const weatherResponse = await fetch(weatherURL);
+    if (!weatherResponse.ok) throw new Error("Weather fetch failed");
     const weatherData = await weatherResponse.json();
 
     const icon = `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`;
@@ -23,22 +24,37 @@ async function getWeather() {
       <p>${desc}</p>
     `;
 
-    // Forecast (next 3 days at 12:00)
+    // ✅ Forecast (3 days, free API uses 3-hour intervals)
     const forecastURL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=${units}`;
     const forecastResponse = await fetch(forecastURL);
+    if (!forecastResponse.ok) throw new Error("Forecast fetch failed");
     const forecastData = await forecastResponse.json();
 
     forecastContainer.innerHTML = "<h3>3-Day Forecast</h3>";
 
-    const noonForecasts = forecastData.list.filter(f => f.dt_txt.includes("12:00:00")).slice(0, 3);
-    noonForecasts.forEach(day => {
-      const date = new Date(day.dt_txt).toLocaleDateString("en-GB", { weekday: "short" });
+    // Group by date and pick midday (12:00) or fallback
+    const dailyForecasts = {};
+    forecastData.list.forEach(item => {
+      const date = item.dt_txt.split(" ")[0];
+      if (!dailyForecasts[date] && item.dt_txt.includes("12:00:00")) {
+        dailyForecasts[date] = item;
+      }
+    });
+
+    // Pick the first 3 days
+    const dates = Object.keys(dailyForecasts).slice(0, 3);
+
+    dates.forEach(date => {
+      const day = dailyForecasts[date];
+      const weekday = new Date(date).toLocaleDateString("en-GB", { weekday: "short" });
       const icon = `https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`;
+      const temp = Math.round(day.main.temp);
+
       forecastContainer.innerHTML += `
         <div class="forecast-day">
-          <p>${date}</p>
+          <p>${weekday}</p>
           <img src="${icon}" alt="${day.weather[0].description}">
-          <p>${Math.round(day.main.temp)}°C</p>
+          <p>${temp}°C</p>
         </div>
       `;
     });
@@ -46,17 +62,20 @@ async function getWeather() {
   } catch (err) {
     console.error("Weather API error:", err);
     weatherContainer.innerHTML = "<p>Unable to load weather.</p>";
+    forecastContainer.innerHTML = "<p>Unable to load forecast.</p>";
   }
 }
 
 getWeather();
 
 
+// ✅ Spotlight Members
 const spotlightContainer = document.querySelector("#spotlight");
 
 async function loadSpotlight() {
   try {
     const response = await fetch("data/members.json");
+    if (!response.ok) throw new Error("Spotlight data fetch failed");
     const members = await response.json();
 
     // Filter Gold (3) and Silver (2)

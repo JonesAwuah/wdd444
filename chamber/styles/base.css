@@ -137,6 +137,23 @@ body.dark-theme footer {
 .panel { background:#fff; border:1px solid #ddd; padding:1rem; border-radius:6px; }
 .panel h3 { background: var(--secondary-color); color:#fff; padding:.4rem; border-radius:4px; margin-bottom:.6rem; }
 
+.panel .content .event {
+  margin-bottom: 1rem;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.panel .content .event:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.panel .content h4 {
+  color: var(--primary-color);
+  margin-bottom: .3rem;
+  font-size: 1rem;
+}
 
 /* Directory controls */
 .directory-controls { display:flex; gap:1rem; flex-wrap:wrap; align-items:center; justify-content:space-between; padding: 0 1rem; }
