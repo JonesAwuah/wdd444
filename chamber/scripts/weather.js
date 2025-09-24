@@ -18,7 +18,7 @@ async function getWeather() {
     const desc = weatherData.weather[0].description;
 
     weatherContainer.innerHTML = `
-      <h3>Current Weather</h3>
+     
       <img src="${icon}" alt="${desc}">
       <p><strong>${temp}°C</strong></p>
       <p>${desc}</p>
@@ -30,7 +30,7 @@ async function getWeather() {
     if (!forecastResponse.ok) throw new Error("Forecast fetch failed");
     const forecastData = await forecastResponse.json();
 
-    forecastContainer.innerHTML = "<h3>3-Day Forecast</h3>";
+   // forecastContainer.innerHTML = "<h3>3-Day Forecast</h3>";
 
     // Group by date and pick midday (12:00) or fallback
     const dailyForecasts = {};
@@ -70,7 +70,7 @@ getWeather();
 
 
 // ✅ Spotlight Members
-const spotlightContainer = document.querySelector("#spotlight");
+const spotlightContainer = document.querySelector("members");
 
 async function loadSpotlight() {
   try {
