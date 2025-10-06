@@ -1,10 +1,12 @@
+// ===========================
+// MODAL ("Read More") LOGIC
+// ===========================
 const readMoreButtons = document.querySelectorAll(".read-more");
 const modal = document.getElementById("modal");
 const modalTitle = document.getElementById("modal-title");
 const modalText = document.getElementById("modal-text");
 const closeBtn = document.querySelector(".close");
 
-// Extended details for each card
 const details = {
   purpose: {
     title: "Our Purpose",
@@ -20,7 +22,7 @@ const details = {
   }
 };
 
-// Handle Read More button clicks
+// Open modal
 readMoreButtons.forEach(button => {
   button.addEventListener("click", () => {
     const target = button.getAttribute("data-target");
@@ -43,11 +45,9 @@ window.addEventListener("click", (e) => {
 });
 
 
-
-
-
-
-/// Responsive nav toggle
+// ===========================
+// NAVIGATION & DROPDOWN LOGIC
+// ===========================
 const hamburger = document.getElementById("hamburger");
 const mainNav = document.getElementById("mainNav");
 
@@ -55,16 +55,17 @@ hamburger.addEventListener("click", () => {
   mainNav.classList.toggle("open");
 });
 
-// Dropdown toggle
 const dropdownToggle = document.querySelector(".dropdown-toggle");
 const dropdownContent = document.querySelector(".dropdown-content");
 
+// Prevent dropdown staying open permanently
 dropdownToggle.addEventListener("click", (e) => {
-  e.preventDefault(); // prevent jump
+  e.preventDefault();
   dropdownContent.classList.toggle("show");
+  e.stopPropagation(); // prevent bubbling up to document
 });
 
-// Close dropdown when clicking outside
+// Close dropdown when clicking anywhere else
 document.addEventListener("click", (e) => {
   if (!e.target.closest(".dropdown")) {
     dropdownContent.classList.remove("show");

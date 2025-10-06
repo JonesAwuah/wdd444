@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resources - Job Seekers</title>
+  <style>
+    :root {
+      --deep-blue: #0c4b78;
+      --deep-blue-2: #0a3d66;
+      --accent: #00a5cf;
+      --white: #ffffff;
+      --muted: #6b7a86;
+      --card-shadow: rgba(10,20,30,0.08);
+      --max-width: 1100px;
+      --radius: 12px;
+      --font-main: "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-main);
+      background-color: var(--white);
+      color: var(--deep-blue-2);
+      line-height: 1.6;
+    }
+
+    header {
+      background: var(--deep-blue);
+      color: var(--white);
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    header p {
+      max-width: 600px;
+      margin: 0.5rem auto 0;
+      color: var(--white);
+      font-size: 1rem;
+    }
+
+    .resources-section {
+      max-width: var(--max-width);
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .resource-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--white);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 5px var(--card-shadow);
+      margin-bottom: 2rem;
+      overflow: hidden;
+      padding: 1rem;
+      gap: 1.5rem;
+    }
+
+    .resource-card:nth-child(even) {
+      flex-direction: row-reverse;
+    }
+
+    .resource-card img {
+      width: 300px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: var(--radius);
+      flex-shrink: 0;
+    }
+
+    .resource-content {
+      flex: 1;
+    }
+
+    .resource-content h2 {
+      color: var(--deep-blue);
+      margin-top: 0;
+    }
+
+    .resource-content p {
+      color: var(--muted);
+    }
+
+    .read-more {
+      display: block;
+      margin: 1rem auto 0;
+      text-align: center;
+      background: var(--deep-blue);
+      color: var(--white);
+      border: none;
+      padding: 0.6rem 1.5rem;
+      border-radius: 25px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .read-more:hover {
+      background: var(--accent);
+      color: var(--deep-blue-2);
+    }
+
+    /* Modal styling */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: var(--white);
+      padding: 2rem;
+      border-radius: var(--radius);
+      max-width: 600px;
+      width: 90%;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+
+    .close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--deep-blue-2);
+    }
+
+    @media (max-width: 768px) {
+      .resource-card {
+        flex-direction: column;
+        text-align: center;
+      }
+      .resource-card:nth-child(even) {
+        flex-direction: column;
+      }
+      .resource-card img {
+        width: 100%;
+        height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Resources</h1>
+    <p>Explore valuable tools and guidance to support your career journey. Whether you're preparing for interviews, crafting a resume, or improving your professional network, we have you covered.</p>
+  </header>
+
+  <main class="resources-section">
+    <div class="resource-card">
+      <img src="images/resume-tools.jpg" alt="Resume Tools">
+      <div class="resource-content">
+        <h2>Resume Tools</h2>
+        <p>Discover resources that help you create professional, polished resumes that capture employers’ attention and highlight your strengths effectively.</p>
+        <button class="read-more" data-target="resume">Read More</button>
+      </div>
+    </div>
+
+    <div class="resource-card">
+      <img src="images/interview.jpg" alt="Interview Coaching">
+      <div class="resource-content">
+        <h2>Interview Coaching</h2>
+        <p>Gain confidence and learn proven techniques to succeed in your interviews with practical coaching and expert tips tailored to your goals.</p>
+        <button class="read-more" data-target="interview">Read More</button>
+      </div>
+    </div>
+
+    <div class="resource-card">
+      <img src="images/career-guide.jpg" alt="Career Guides">
+      <div class="resource-content">
+        <h2>Career Guides</h2>
+        <p>Access step-by-step career guidance that helps you choose the right path, build essential skills, and grow confidently in your chosen field.</p>
+        <button class="read-more" data-target="career">Read More</button>
+      </div>
+    </div>
+
+    <div class="resource-card">
+      <img src="images/networking.jpg" alt="Networking">
+      <div class="resource-content">
+        <h2>Networking</h2>
+        <p>Learn effective ways to build lasting professional connections that can open new doors and strengthen your career opportunities.</p>
+        <button class="read-more" data-target="networking">Read More</button>
+      </div>
+    </div>
+
+    <div class="resource-card">
+      <img src="images/applications.jpg" alt="Application Tips">
+      <div class="resource-content">
+        <h2>Application Tips</h2>
+        <p>Master the art of job applications with insights on how to write persuasive cover letters and customize your submissions for better results.</p>
+        <button class="read-more" data-target="applications">Read More</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">&times;</span>
+      <h2 id="modal-title"></h2>
+      <p id="modal-text"></p>
+    </div>
+  </div>
+
+  <script>
+    const readMoreButtons = document.querySelectorAll(".read-more");
+    const modal = document.getElementById("modal");
+    const modalTitle = document.getElementById("modal-title");
+    const modalText = document.getElementById("modal-text");
+    const closeModal = document.getElementById("closeModal");
+
+    const details = {
+      resume: {
+        title: "Resume Tools",
+        text: "We provide templates, formatting guides, and keyword optimization advice to help your resume stand out and pass automated screening systems."
+      },
+      interview: {
+        title: "Interview Coaching",
+        text: "Our interview resources include mock interview sessions, question strategies, and body language training to help you perform confidently."
+      },
+      career: {
+        title: "Career Guides",
+        text: "From choosing a career path to long-term growth, our guides give you the roadmap to success with real-world examples and advice."
+      },
+      networking: {
+        title: "Networking",
+        text: "Learn how to network online and offline effectively — building professional relationships that can open new opportunities."
+      },
+      applications: {
+        title: "Application Tips",
+        text: "Improve your application success rate by crafting personalized messages and learning what employers look for in your submissions."
+      }
+    };
+
+    readMoreButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const target = btn.dataset.target;
+        modalTitle.textContent = details[target].title;
+        modalText.textContent = details[target].text;
+        modal.style.display = "flex";
+      });
+    });
+
+    closeModal.addEventListener("click", () => {
+      modal.style.display = "none";
+    });
+
+    window.addEventListener("click", (e) => {
+      if (e.target === modal) modal.style.display = "none";
+    });
+  </script>
+</body>
+</html>
