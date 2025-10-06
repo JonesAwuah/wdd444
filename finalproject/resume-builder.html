@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume Builder | Job Seekers</title>
+  <link rel="stylesheet" href="styles/index.css">
+  <style>
+    :root {
+      --deep-blue: #0c4b78;
+      --accent: #00a5cf;
+      --light: #f9f9f9;
+      --white: #ffffff;
+      --radius: 8px;
+    }
+
+    body {
+      background: var(--light);
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    .builder-container {
+      max-width: 1100px;
+      margin: 2rem auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      padding: 1rem;
+    }
+
+    .form-section,
+    .preview-section {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .form-section h2,
+    .preview-section h2 {
+      margin-bottom: 1rem;
+      color: var(--deep-blue);
+    }
+
+    label {
+      display: block;
+      margin: 0.6rem 0 0.3rem;
+      font-weight: 600;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 0.6rem;
+      border-radius: var(--radius);
+      border: 1px solid #ccc;
+      font-size: 0.95rem;
+    }
+
+    textarea {
+      min-height: 80px;
+    }
+
+    button {
+      margin-top: 1rem;
+      background: var(--deep-blue);
+      color: var(--white);
+      padding: 0.7rem 1.4rem;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: var(--accent);
+    }
+
+    /* Preview Section */
+    .resume-preview {
+      background: #fff;
+      padding: 1.5rem;
+      border: 1px solid #ddd;
+      border-radius: var(--radius);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .resume-preview h3 {
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+      color: var(--deep-blue);
+    }
+
+    .resume-preview p {
+      margin: 0.2rem 0;
+    }
+
+    .resume-preview ul {
+      margin: 0.5rem 0 1rem 1.2rem;
+    }
+
+    @media (max-width: 900px) {
+      .builder-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <img src="images/logo.jpg" alt="Job Seekers logo" class="logo">
+        <span class="site-name">Job Seekers</span>
+      </div>
+      <nav class="nav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="jobs.html">Jobs</a></li>
+          <li><a href="resources.html" class="active">Resources</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- PAGE HEADER -->
+  <section class="page-header">
+    <h1>Resume Builder</h1>
+    <p>Fill out the form and preview your resume instantly. When ready, print or save it as PDF.</p>
+  </section>
+
+  <!-- MAIN BUILDER -->
+  <div class="builder-container">
+    <!-- Form Section -->
+    <div class="form-section">
+      <h2>Enter Your Details</h2>
+      <form id="resumeForm">
+        <label>Full Name</label>
+        <input type="text" id="name" placeholder="John Doe" required />
+
+        <label>Email</label>
+        <input type="email" id="email" placeholder="john@email.com" required />
+
+        <label>Phone</label>
+        <input type="text" id="phone" placeholder="+233 123 456 789" required />
+
+        <label>Professional Summary</label>
+        <textarea id="summary" placeholder="A short summary about yourself..."></textarea>
+
+        <label>Work Experience</label>
+        <textarea id="experience" placeholder="Job Title - Company (Year)..."></textarea>
+
+        <label>Education</label>
+        <textarea id="education" placeholder="Degree - Institution (Year)..."></textarea>
+
+        <label>Skills</label>
+        <textarea id="skills" placeholder="Skill 1, Skill 2, Skill 3..."></textarea>
+
+        <button type="button" onclick="generateResume()">Generate Resume</button>
+        <button type="button" onclick="printResume()">Print / Save PDF</button>
+      </form>
+    </div>
+
+    <!-- Preview Section -->
+    <div class="preview-section">
+      <h2>Resume Preview</h2>
+      <div class="resume-preview" id="resumePreview">
+        <p>Fill out the form to see your resume here...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; <span id="year"></span> Job Seekers</p>
+    </div>
+  </footer>
+
+  <script>
+    function generateResume() {
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const phone = document.getElementById("phone").value;
+      const summary = document.getElementById("summary").value;
+      const experience = document.getElementById("experience").value;
+      const education = document.getElementById("education").value;
+      const skills = document.getElementById("skills").value;
+
+      document.getElementById("resumePreview").innerHTML = `
+        <h2>${name}</h2>
+        <p><strong>Email:</strong> ${email} | <strong>Phone:</strong> ${phone}</p>
+
+        <h3>Professional Summary</h3>
+        <p>${summary}</p>
+
+        <h3>Work Experience</h3>
+        <p>${experience.replace(/\n/g, "<br>")}</p>
+
+        <h3>Education</h3>
+        <p>${education.replace(/\n/g, "<br>")}</p>
+
+        <h3>Skills</h3>
+        <ul>${skills.split(",").map(skill => `<li>${skill.trim()}</li>`).join("")}</ul>
+      `;
+    }
+
+    function printResume() {
+      const printContents = document.getElementById("resumePreview").innerHTML;
+      const win = window.open("", "", "width=800,height=600");
+      win.document.write("<html><head><title>My Resume</title></head><body>");
+      win.document.write(printContents);
+      win.document.write("</body></html>");
+      win.document.close();
+      win.print();
+    }
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

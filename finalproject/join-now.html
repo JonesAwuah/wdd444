@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join Now | Job Seekers</title>
+  <link rel="stylesheet" href="styles/index.css">
+  <style>
+    .join-container {
+      max-width: 600px;
+      margin: 4rem auto;
+      padding: 2rem;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .join-container h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #0c4b78;
+    }
+
+    .join-container p {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #555;
+    }
+
+    .join-container form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .join-container input {
+      padding: 0.9rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-family: inherit;
+    }
+
+    .join-container button {
+      padding: 0.9rem;
+      border: none;
+      border-radius: 6px;
+      background: #0c4b78;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .join-container button:hover {
+      background: #00a5cf;
+    }
+
+    .join-container .alt-links {
+      margin-top: 1rem;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+
+    .join-container .alt-links a {
+      color: #0c4b78;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .join-container .alt-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <img src="images/logo.jpg" alt="logo" class="logo">
+        <span class="site-name">Job Seekers</span>
+      </div>
+      <nav class="nav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="resources.html">Resources</a></li>
+          <li><a href="career-guides.html">Career Guides</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="join-now.html" class="active">Join Now</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Join Now Section -->
+  <div class="join-container">
+    <h1>Join Job Seekers</h1>
+    <p>Create your free account and unlock resume tools, interview coaching, and career guides.</p>
+
+    <form action="#" method="POST">
+      <input type="text" name="fullname" placeholder="Full Name" required>
+      <input type="email" name="email" placeholder="Email Address" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <input type="password" name="confirm-password" placeholder="Confirm Password" required>
+      <button type="submit">Join Now</button>
+    </form>
+
+    <div class="alt-links">
+      <p>Already have an account? <a href="#">Sign In</a></p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; <span id="year"></span> Job Seekers</p>
+    </div>
+  </footer>
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

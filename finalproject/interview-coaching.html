@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interview Coaching | Job Seekers</title>
+  <link rel="stylesheet" href="styles/index.css">
+  <style>
+    :root {
+      --deep-blue: #0c4b78;
+      --accent: #00a5cf;
+      --light: #f9f9f9;
+      --white: #fff;
+      --radius: 8px;
+    }
+
+    body {
+      background: var(--light);
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    .coaching-container {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 1rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    section {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+      color: var(--deep-blue);
+    }
+
+    ul {
+      margin-left: 1.2rem;
+      line-height: 1.6;
+    }
+
+    button {
+      background: var(--deep-blue);
+      color: var(--white);
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: var(--accent);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      margin-top: 0.5rem;
+      padding: 0.6rem;
+      border-radius: var(--radius);
+      border: 1px solid #ccc;
+    }
+
+    .feedback {
+      margin-top: 1rem;
+      background: #f1f9ff;
+      border-left: 4px solid var(--accent);
+      padding: 0.8rem;
+      border-radius: var(--radius);
+      display: none;
+    }
+
+    @media(max-width: 900px) {
+      .coaching-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <img src="images/logo.jpg" alt="Job Seekers logo" class="logo">
+        <span class="site-name">Job Seekers</span>
+      </div>
+      <nav class="nav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="jobs.html">Jobs</a></li>
+          <li><a href="resources.html" class="active">Resources</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- PAGE HEADER -->
+  <section class="page-header">
+    <h1>Interview Coaching</h1>
+    <p>Learn how to ace your job interview and practice with real interview questions.</p>
+  </section>
+
+  <!-- MAIN CONTENT -->
+  <div class="coaching-container">
+    <!-- Coaching Tips -->
+    <section>
+      <h2>Interview Tips</h2>
+      <ul>
+        <li>Research the company and role before the interview.</li>
+        <li>Dress professionally and arrive early (or log in early for virtual interviews).</li>
+        <li>Practice common interview questions and prepare examples.</li>
+        <li>Show confidence: maintain eye contact, good posture, and smile.</li>
+        <li>Listen carefully, answer clearly, and don’t rush.</li>
+        <li>Ask smart questions at the end to show interest.</li>
+        <li>Follow up with a thank-you email after the interview.</li>
+      </ul>
+    </section>
+
+    <!-- Practice Section -->
+    <section>
+      <h2>Practice Interview</h2>
+      <p id="question">Click the button below to get a random interview question.</p>
+      <button onclick="getQuestion()">Get Question</button>
+
+      <div id="practiceArea" style="display:none;">
+        <label>Your Answer:</label>
+        <textarea id="answer" placeholder="Type your answer here..."></textarea>
+        <button onclick="showFeedback()">Submit Answer</button>
+      </div>
+
+      <div class="feedback" id="feedbackBox"></div>
+    </section>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; <span id="year"></span> Job Seekers</p>
+    </div>
+  </footer>
+
+  <script>
+    const questions = [
+      "Tell me about yourself.",
+      "Why do you want to work here?",
+      "What are your greatest strengths?",
+      "What is your biggest weakness?",
+      "Describe a challenge you faced and how you overcame it.",
+      "Where do you see yourself in five years?",
+      "Why should we hire you?",
+      "Tell me about a time you worked in a team.",
+      "How do you handle pressure and deadlines?",
+      "What do you know about our company?"
+    ];
+
+    const feedbackTips = {
+      "yourself": "Keep it professional. Mention your background, key skills, and career goals.",
+      "work here": "Show enthusiasm for the company’s mission, culture, or recent achievements.",
+      "strengths": "Pick 2–3 strengths relevant to the job and give examples.",
+      "weakness": "Choose a real but small weakness and explain how you’re improving it.",
+      "challenge": "Use the STAR method: Situation, Task, Action, Result.",
+      "five years": "Show ambition but align it with the company’s growth.",
+      "hire you": "Summarize your skills and how they match the job requirements.",
+      "team": "Give an example of good teamwork and collaboration.",
+      "pressure": "Share a positive story of meeting a deadline or managing stress.",
+      "company": "Mention specific facts you researched about the company."
+    };
+
+    function getQuestion() {
+      const randomQ = questions[Math.floor(Math.random() * questions.length)];
+      document.getElementById("question").textContent = randomQ;
+      document.getElementById("practiceArea").style.display = "block";
+      document.getElementById("feedbackBox").style.display = "none";
+      document.getElementById("answer").value = "";
+    }
+
+    function showFeedback() {
+      const q = document.getElementById("question").textContent.toLowerCase();
+      let feedback = "Great effort! Remember to answer confidently and give examples.";
+
+      for (let key in feedbackTips) {
+        if (q.includes(key)) {
+          feedback = feedbackTips[key];
+          break;
+        }
+      }
+
+      document.getElementById("feedbackBox").textContent = feedback;
+      document.getElementById("feedbackBox").style.display = "block";
+    }
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

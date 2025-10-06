@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Application Tips | Job Seekers</title>
+  <link rel="stylesheet" href="styles/index.css">
+  <style>
+    .content {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 1.5rem;
+      line-height: 1.7;
+    }
+    .content h2 {
+      color: #0c4b78;
+      margin-top: 2rem;
+    }
+    .tips {
+      list-style: none;
+      padding: 0;
+    }
+    .tips li {
+      background: #f8fbff;
+      border-left: 4px solid #00a5cf;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border-radius: 6px;
+    }
+    .cta-box {
+      margin-top: 2.5rem;
+      background: #0c4b78;
+      color: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .cta-box h3 {
+      margin-bottom: 1rem;
+    }
+    .cta-box .btn-link {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.6rem 1.2rem;
+      background: #00a5cf;
+      color: #fff;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    .cta-box .btn-link:hover {
+      background: #0086a8;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <img src="images/logo.jpg" alt="logo" class="logo">
+        <span class="site-name">Job Seekers</span>
+      </div>
+      <nav class="nav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="resources.html" class="active">Resources</a></li>
+          <li><a href="career-guides.html">Career Guides</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="page-header">
+    <h1>Application Tips</h1>
+    <p>Perfect your job applications with expert guidance on crafting persuasive cover letters, following up, and demonstrating professionalism.</p>
+  </section>
+
+  <!-- Content -->
+  <div class="content">
+    <h2>Crafting Persuasive Cover Letters</h2>
+    <ul class="tips">
+      <li><strong>Tailor Each Letter:</strong> Address the specific role and company, not a generic template.</li>
+      <li><strong>Show Value:</strong> Highlight achievements and skills that directly solve the employer’s needs.</li>
+      <li><strong>Be Concise:</strong> Stick to one page with a clear introduction, body, and closing.</li>
+      <li><strong>Professional Format:</strong> Use a clean layout, formal tone, and proofread carefully.</li>
+    </ul>
+
+    <h2>Following Up After Applying</h2>
+    <ul class="tips">
+      <li><strong>Send a Follow-Up Email:</strong> 1–2 weeks after applying, politely check the status of your application.</li>
+      <li><strong>Reinforce Interest:</strong> Reiterate your enthusiasm for the position without sounding pushy.</li>
+      <li><strong>Be Professional:</strong> Keep it short, polite, and respectful of the recruiter’s time.</li>
+    </ul>
+
+    <h2>Demonstrating Professionalism</h2>
+    <ul class="tips">
+      <li><strong>Attention to Detail:</strong> Ensure no typos, formatting errors, or missing documents.</li>
+      <li><strong>Meet Deadlines:</strong> Submit applications before closing dates and follow instructions carefully.</li>
+      <li><strong>Respect Communication:</strong> Respond to employer messages promptly and courteously.</li>
+    </ul>
+
+    <!-- Call to Action -->
+    <div class="cta-box">
+      <h3>Ready to Apply Like a Pro?</h3>
+      <p>Put these tips into practice and increase your chances of landing the job you want.</p>
+      <a href="resume-tools.html" class="btn-link">Build Your Resume</a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; <span id="year"></span> Job Seekers</p>
+    </div>
+  </footer>
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

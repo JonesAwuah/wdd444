@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Continuous Learning | Job Seekers</title>
+  <link rel="stylesheet" href="styles/index.css">
+  <style>
+    .content {max-width: 1000px; margin: 2rem auto; padding: 1.5rem;}
+    .content h2 {color: #0c4b78; margin-top: 1.5rem;}
+    .courses ul {list-style: none; padding: 0;}
+    .courses li {background: #f1f9ff; padding: 1rem; border-left: 4px solid #00a5cf; margin-bottom: 1rem; border-radius: 6px;}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <img src="images/logo.jpg" alt="logo" class="logo">
+        <span class="site-name">Job Seekers</span>
+      </div>
+      <nav class="nav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="resources.html" class="active">Resources</a></li>
+          <li><a href="career-guides.html">Career Guides</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <section class="page-header">
+    <h1>Continuous Learning</h1>
+    <p>Stay ahead by constantly improving your skills and knowledge base.</p>
+  </section>
+
+  <div class="content">
+    <h2>Why Learning Matters</h2>
+    <p>The workplace is changing fast. Upskilling keeps you competitive and opens doors to new opportunities.</p>
+
+    <div class="courses">
+      <h2>Suggested Learning Paths</h2>
+      <ul>
+        <li><strong>Technical Skills:</strong> Programming, data analysis, cybersecurity.</li>
+        <li><strong>Soft Skills:</strong> Leadership, communication, time management.</li>
+        <li><strong>Industry Knowledge:</strong> Online certifications and niche courses.</li>
+        <li><strong>Professional Credentials:</strong> Recognized certificates and degrees.</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; <span id="year"></span> Job Seekers</p>
+    </div>
+  </footer>
+  <script>document.getElementById("year").textContent=new Date().getFullYear()</script>
+</body>
+</html>
