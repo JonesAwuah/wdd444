@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Handwritten Record → Structured Data</title>
+  <style>
+    :root{font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+    body{margin:0;background:#f5f7fb;color:#111;display:flex;min-height:100vh;align-items:flex-start;justify-content:center;padding:28px;}
+    .card{width:1100px;background:#fff;border-radius:12px;padding:18px;box-shadow:0 6px 22px rgba(15,23,42,.08);}
+    header{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+    h1{font-size:18px;margin:0}
+    .controls{display:flex;gap:12px;align-items:center;margin-top:8px}
+    input[type=file]{padding:6px}
+    button{background:#0b66ff;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+    button[disabled]{opacity:.5;cursor:not-allowed}
+    .preview{margin-top:12px;display:flex;gap:12px}
+    .image-wrap{width:420px;height:320px;border:1px dashed #d6dde7;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fafbff}
+    .image-wrap img{max-width:100%;max-height:100%}
+    .results{flex:1}
+    .log{background:#0f1724;color:#e6eefc;padding:8px;border-radius:8px;font-family:monospace;font-size:13px;height:90px;overflow:auto}
+    table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px}
+    th,td{padding:6px;border:1px solid #e6eef2;text-align:left}
+    th{background:#f4f7fb}
+    .small{font-size:12px;color:#445}
+    .footer{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+    .badge{font-size:12px;padding:6px 8px;border-radius:999px;background:#eef6ff;color:#0447af}
+  </style>
+  <!-- Tesseract.js from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+</head>
+<body>
+  <div class="card">
+    <header>
+      <h1>Handwritten Record → Structured Data</h1>
+      <div class="badge">Heuristic OCR (front-end)</div>
+    </header>
+
+    <p class="small">Upload a scan of a handwritten record. The script tries to:</p>
+    <ul class="small">
+      <li>Use the <strong>first line</strong> found by OCR as the <em>Event date</em>.</li>
+      <li>Find the <strong>name</strong> written in the left margin by looking for words with small x coordinates.</li>
+      <li>Attempt to find parents' names using common Spanish/English connectors like <em>de</em>, <em>hijo de</em>, <em>hija de</em>, <em>padre</em>, <em>madre</em>.</li>
+      <li>Populate an editable table so you can correct or augment values.</li>
+    </ul>
+
+    <div class="controls">
+      <input id="file" type="file" accept="image/*" />
+      <button id="runBtn" disabled>Run OCR</button>
+      <button id="exportCsv" disabled>Export CSV</button>
+      <div style="flex:1"></div>
+      <div class="small">Tip: For better results, crop to the record area and use a clear scan.</div>
+    </div>
+
+    <div class="preview">
+      <div class="image-wrap" id="imgWrap">No image loaded</div>
+
+      <div class="results">
+        <div class="log" id="log">Load an image to begin.</div>
+        <div id="parsed" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <div id="tableContainer"></div>
+
+    <div class="footer">
+      <button id="clear">Clear</button>
+    </div>
+  </div>
+
+<script>
+/* Front-end OCR + parsing app
+   - Uses Tesseract.js (client side)
+   - Heuristics:
+     * Event date: first non-empty OCR line
+     * Side name: words with small x coordinate (left margin)
+     * Parents: look for "hijo de"/"hija de"/"de" and capture following capitalized segments
+*/
+
+const fileInput = document.getElementById('file');
+const imgWrap = document.getElementById('imgWrap');
+const log = document.getElementById('log');
+const runBtn = document.getElementById('runBtn');
+const exportCsv = document.getElementById('exportCsv');
+const parsedDiv = document.getElementById('parsed');
+const tableContainer = document.getElementById('tableContainer');
+const clearBtn = document.getElementById('clear');
+
+let currentImageURL = null;
+let lastDataRow = null; // structured object
+
+function logMsg(...args){ log.textContent = args.join(' ') + '\\n' + log.textContent; }
+
+fileInput.addEventListener('change', (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  if (currentImageURL) URL.revokeObjectURL(currentImageURL);
+  currentImageURL = URL.createObjectURL(f);
+  imgWrap.innerHTML = '<img id="preview" src="'+currentImageURL+'">';
+  runBtn.disabled = false;
+  exportCsv.disabled = true;
+  logMsg('Image loaded. Click "Run OCR".');
+});
+
+runBtn.addEventListener('click', async () => {
+  const img = document.getElementById('preview');
+  if (!img) { logMsg('No image to OCR.'); return; }
+  runBtn.disabled = true;
+  logMsg('Starting OCR (this can take 10-30s depending on image size)...');
+
+  try {
+    const worker = Tesseract.createWorker({
+      logger: m => {
+        if (m.status && m.progress) {
+          const pct = Math.round(m.progress*100);
+          logMsg(m.status + ' ' + pct + '%');
+        } else if (m.status) {
+          logMsg(m.status);
+        }
+      }
+    });
+    await worker.load();
+    await worker.loadLanguage('spa+eng'); // Spanish + English
+    await worker.initialize('spa+eng');
+    // Increase OCR accuracy: set psm to 6 (Assume a uniform block of text)
+    const { data } = await worker.recognize(img, { tessedit_pageseg_mode: 6 });
+
+    logMsg('OCR finished. Parsing text...');
+    // Full text by lines
+    const fullText = data.text || '';
+    const lines = fullText.split(/\\r?\\n/).map(l => l.trim()).filter(Boolean);
+    logMsg('Lines detected:', lines.length);
+
+    // Heuristic 1: event date = first line (if looks like a date extract d, m, y)
+    let eventLine = lines.length ? lines[0] : '';
+    let event = parseDateFromLine(eventLine);
+    if (!event) {
+      // fallback: try to find first line containing a year 18xx/19xx/20xx
+      for (const ln of lines) {
+        if (/\\b(18|19|20)\\d{2}\\b/.test(ln)) { eventLine = ln; event = parseDateFromLine(ln); break; }
+      }
+    }
+
+    // Heuristic 2: name in left margin using word-level bbox positions
+    let leftMarginNames = extractLeftMarginNames(data.words);
+    // Heuristic 3: parents - scan text for connectors
+    const parents = extractParentsFromText(fullText);
+
+    const result = {
+      Event_D: event?.d || '',
+      Event_M: event?.m || '',
+      Event_Y: event?.y || '',
+      Given: leftMarginNames.given || '',
+      Surname: leftMarginNames.surname || '',
+      Sex: '', // not reliably in the sample
+      Birth_D: '', Birth_M: '', Birth_Y: '',
+      Fa_Given: parents.father_given || '',
+      Fa_Surname: parents.father_surname || '',
+      Mo_Given: parents.mother_given || '',
+      Mo_Surname: parents.mother_surname || ''
+    };
+
+    lastDataRow = result;
+    displayParsed(result, eventLine, lines);
+    await worker.terminate();
+    runBtn.disabled = false;
+    exportCsv.disabled = false;
+    logMsg('Done.');
+  } catch (err) {
+    console.error(err);
+    logMsg('OCR failed: ' + err.message);
+    runBtn.disabled = false;
+  }
+});
+
+// ----- parsing helpers -----
+
+function parseDateFromLine(line) {
+  if (!line) return null;
+  // normalize months (Spanish and English)
+  const months = {
+    'enero':1,'febrero':2,'marzo':3,'abril':4,'mayo':5,'junio':6,'julio':7,'agosto':8,'septiembre':9,'setiembre':9,'octubre':10,'noviembre':11,'diciembre':12,
+    'january':1,'february':2,'march':3,'april':4,'may':5,'june':6,'july':7,'august':8,'september':9,'october':10,'november':11,'december':12
+  };
+  // Try common numeric formats: d/m/yyyy or dd-mm-yyyy or "9 de mayo de 1891"
+  // 1) "(\d{1,2})\s+de\s+([^\\s]+)\s+de\s+(\d{4})"
+  let m = line.match(/(\\d{1,2})\\s+de\\s+([A-Za-záéíóúñ]+)\\s+de\\s+(\\d{4})/i);
+  if (m) {
+    const d = m[1];
+    const monthName = m[2].toLowerCase();
+    const y = m[3];
+    const mo = months[monthName] || monthName;
+    return { d: d, m: mo, y: y };
+  }
+  // 2) numeric: dd/mm/yyyy or dd-mm-yyyy
+  m = line.match(/(\\d{1,2})[\\/\\-](\\d{1,2})[\\/\\-](\\d{4})/);
+  if (m) return { d: m[1], m: m[2], y: m[3] };
+  // 3) year only
+  m = line.match(/(18|19|20)\\d{2}/);
+  if (m) return { d:'', m:'', y: m[0] };
+  return null;
+}
+
+function extractLeftMarginNames(words) {
+  if (!words || !words.length) return {};
+  // words: each has bbox in form {x0,y0,x1,y1,text}
+  // choose words with small x0 (left side)
+  const threshold = 80; // px from left; heuristic (works for typical uploads)
+  const left = words.filter(w => w.bbox && (w.bbox.x0 <= threshold || w.bbox.x1 <= threshold || w.bbox.x0 < w.bbox.x1 && w.bbox.x0 < threshold));
+  // If no bbox property, try 'x0' fields (tesseract v4 structures vary)
+  let leftTexts = left.map(w => w.text).filter(Boolean);
+  if (!leftTexts.length) {
+    // fallback: take first vertical column: sort by x0 ascending and pick words near smallest x
+    const sortedByX = words.slice().sort((a,b)=> (a.bbox?.x0||9999)-(b.bbox?.x0||9999));
+    const smallestX = sortedByX[0]?.bbox?.x0 || 0;
+    leftTexts = sortedByX.filter(w => (w.bbox?.x0||9999) - smallestX < 40).map(w=>w.text);
+  }
+  // combine into a single string
+  const leftCombined = leftTexts.join(' ').replace(/[^\\w\\sáéíóúñÁÉÍÓÚÑ'-]/g,' ').trim();
+  // Heuristics: often side margin contains "GivenName Surname" or only Given
+  const tokens = leftCombined.split(/\s+/).filter(Boolean);
+  let given='', surname='';
+  if (tokens.length === 1) given = tokens[0];
+  else if (tokens.length >= 2) {
+    // If last token looks like surname (uppercase initial), assign as surname
+    given = tokens.slice(0, tokens.length-1).join(' ');
+    surname = tokens[tokens.length-1];
+  }
+  return { given: given, surname: surname, raw: leftCombined };
+}
+
+function extractParentsFromText(fullText) {
+  const t = fullText;
+  const res = { father_given:'', father_surname:'', mother_given:'', mother_surname:'' };
+  // Look for "hijo de ...", "hija de ...", "nacido de ..." or "padre: ..." or "madre: ..."
+  // We'll capture sequences after "de" or "padre" / "madre"
+  // Pattern: de <Name1> <Name2> (stop at comma or "y" or "con" or end)
+  const parentPatterns = [
+    /hijo de\\s+([A-ZÁÉÍÓÚÑ][\\w'áéíóúñÁÉÍÓÚÑ-]+(?:\\s+[A-ZÁÉÍÓÚÑ][\\w'áéíóúñÁÉÍÓÚÑ-]+){0,3}))/gi,
+    /hija de\\s+([A-ZÁÉÍÓÚÑ][\\w'áéíóúñÁÉÍÓÚÑ-]+(?:\\s+[A-ZÁÉÍÓÚÑ][\\w'áéíóúñÁÉÍÓÚÑ-]+){0,3}))/gi,
+    /padre\\s*[:\\-]?\\s*([A-ZÁÉÍÓÚÑ][\\w'áéíóúñÁÉÍÓÚÑ-]+(?:\\s+[A-ZÁÉÍÓÚÑ][\\w'áéíóúñÁÉÍÓÚÑ-]+){0,3}))/gi,
+    /madre\\s*[:\\-]?\\s*([A-ZÁÉÍÓÚÑ][\\w'áéíóúñÁÉÍÓÚÑ-]+(?:\\s+[A-ZÁÉÍÓÚÑ][\\w'áéíóúñÁÉÍÓÚÑ-]+){0,3}))/gi,
+    /de\\s+([A-ZÁÉÍÓÚÑ][\\w'áéíóúñÁÉÍÓÚÑ-]+(?:\\s+[A-ZÁÉÍÓÚÑ][\\w'áéíóúñÁÉÍÓÚÑ-]+){0,3}))/gi
+  ];
+  for (const pat of parentPatterns) {
+    let m;
+    while ((m = pat.exec(t)) !== null) {
+      const name = m[1].trim();
+      // basic rule: if appears after padre/madre use those slots
+      const before = t.slice(Math.max(0,m.index-20), m.index).toLowerCase();
+      if (before.includes('padre') || before.includes('padres')) {
+        if (!res.father_given) assignNameToFather(res, name);
+      } else if (before.includes('madre')) {
+        if (!res.mother_given) assignNameToMother(res, name);
+      } else {
+        // if phrase starts with "hijo de" or "hija de" or "de", assign to father OR mother depending on format
+        // We'll heuristically assign first found to father if father empty, then mother
+        if (!res.father_given) assignNameToFather(res, name);
+        else if (!res.mother_given) assignNameToMother(res, name);
+      }
+    }
+  }
+  return res;
+}
+
+function assignNameToFather(obj, name) {
+  const toks = name.split(/\s+/);
+  obj.father_given = toks.slice(0, toks.length-1).join(' ');
+  obj.father_surname = toks[toks.length-1] || '';
+}
+function assignNameToMother(obj, name) {
+  const toks = name.split(/\s+/);
+  obj.mother_given = toks.slice(0, toks.length-1).join(' ');
+  obj.mother_surname = toks[toks.length-1] || '';
+}
+
+// ----- UI display -----
+function displayParsed(result, eventLine, lines) {
+  parsedDiv.innerHTML = `
+    <div class="small"><strong>Event line (first):</strong> ${escapeHtml(eventLine || '(none)')}</div>
+    <div class="small" style="margin-top:6px"><strong>OCR sample lines:</strong> ${escapeHtml(lines.slice(0,6).join(' — '))}</div>
+    <div style="margin-top:8px;font-size:13px;color:#334">Raw left-margin detection: <em>${escapeHtml(result.Given+' '+result.Surname)}</em></div>
+  `;
+  renderTable([result]);
+}
+
+function renderTable(rows) {
+  // rows: array of objects matching column keys
+  const columns = ['Event_D','Event_M','Event_Y','Given','Surname','Sex','Birth_D','Birth_M','Birth_Y','Fa_Given','Fa_Surname','Mo_Given','Mo_Surname'];
+  let html = '<table id="dataTable"><thead><tr>';
+  for (const c of columns) html += `<th>${c}</th>`;
+  html += '</tr></thead><tbody>';
+  rows.forEach((r, i) => {
+    html += '<tr data-row="'+i+'">';
+    for (const c of columns) {
+      html += `<td contenteditable="true" data-col="${c}">${escapeHtml(r[c]||'')}</td>`;
+    }
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  html += '<div style="margin-top:8px"><button id="saveRow">Save table to memory</button> <button id="downloadBtn">Download CSV</button></div>';
+  tableContainer.innerHTML = html;
+
+  document.getElementById('saveRow').addEventListener('click', () => {
+    // read table into lastDataRow
+    const tr = document.querySelector('#dataTable tbody tr');
+    if (!tr) return;
+    const obj = {};
+    tr.querySelectorAll('td').forEach(td => {
+      const col = td.dataset.col;
+      obj[col] = td.textContent.trim();
+    });
+    lastDataRow = obj;
+    logMsg('Saved row to memory.');
+    exportCsv.disabled = false;
+  });
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    downloadCSV([lastDataRow || rows[0]]);
+  });
+}
+
+function downloadCSV(rows) {
+  if (!rows || !rows.length) { logMsg('No rows to export'); return; }
+  const columns = ['Event_D','Event_M','Event_Y','Given','Surname','Sex','Birth_D','Birth_M','Birth_Y','Fa_Given','Fa_Surname','Mo_Given','Mo_Surname'];
+  const csv = [columns.join(',')].concat(rows.map(r => columns.map(c => `"${(r[c]||'').replace(/"/g,'""')}"`).join(','))).join('\\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'records.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  logMsg('CSV downloaded.');
+}
+
+exportCsv.addEventListener('click', () => {
+  if (!lastDataRow) { logMsg('No parsed row available'); return; }
+  downloadCSV([lastDataRow]);
+});
+
+clearBtn.addEventListener('click', () => {
+  fileInput.value = '';
+  imgWrap.innerHTML = 'No image loaded';
+  parsedDiv.innerHTML = '';
+  tableContainer.innerHTML = '';
+  log.textContent = 'Cleared.';
+  lastDataRow = null;
+  runBtn.disabled = true;
+  exportCsv.disabled = true;
+});
+
+// HTML escape
+function escapeHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>
